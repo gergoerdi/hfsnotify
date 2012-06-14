@@ -30,12 +30,11 @@ import System.IO.FSNotify.OSX
 #  endif
 #endif
 
-data WatchManager = WatchManager (Either PollManager ListenManager)
+data WatchManager = (FallbackFileListener fallbackType, FileListener nativeType) => WatchManager (Either fallbackType nativeType)
 
 startManager :: IO WatchManager
 startManager =
-  (initSession  >>= return . WatchManager . Right) `catch` (\(_::ListenUnsupportedException) ->
-    initSession >>= return . WatchManager . Left)
+  initSession  >>= return . WatchManager
 
 stopManager :: WatchManager -> IO ()
 stopManager (WatchManager wm) =

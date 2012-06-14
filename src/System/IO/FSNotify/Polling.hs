@@ -85,10 +85,13 @@ pollPath recursive filePath actPred action oldPathMap = do
     pollPath' :: Map FilePath UTCTime -> IO ()
     pollPath' = pollPath recursive filePath actPred action
 
-instance FileListener PollManager where
-  initSession = do
+instance FallbackFileListener PollManager where
+  provideSession = do
     mvarMap <- newMVar Map.empty
     return (PollManager mvarMap)
+
+instance FileListener PollManager where
+  initSession = provideSession >>= return . Right
 
   killSession (PollManager mvarMap) = do
     watchMap <- readMVar mvarMap

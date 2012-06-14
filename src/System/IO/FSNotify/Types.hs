@@ -10,6 +10,7 @@ module System.IO.FSNotify.Types
        , ActionPredicate
        , Action
        , act
+       , FallbackFileListener(..)
        , FileListener(..)
        ) where
 
@@ -23,8 +24,11 @@ import System.IO hiding (FilePath)
 data ListenUnsupportedException = ListenUnsupportedException deriving (Typeable, Show)
 instance Exception ListenUnsupportedException
 
+class FallbackFileListener fallbackType where
+  provideSession :: IO fallbackType
+
 class FileListener sessionType where
-  initSession :: IO sessionType
+  initSession :: (FallbackFileListener fallbackType) => IO (Either fallbackType sessionType)
   killSession :: sessionType -> IO ()
   listen  :: sessionType -> FilePath -> ActionPredicate -> Action -> IO ()
   rlisten :: sessionType -> FilePath -> ActionPredicate -> Action -> IO ()

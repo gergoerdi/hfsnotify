@@ -13,6 +13,7 @@ import Prelude hiding (FilePath)
 import Filesystem.Path.CurrentOS
 import System.IO hiding (FilePath)
 import System.IO.FSNotify.Path
+import System.IO.FSNotify.Polling
 import System.IO.FSNotify.Types
 import qualified System.INotify as INo
 
@@ -33,7 +34,7 @@ handleEvent actPred action (Just event) = if actPred event then action event els
 handlEvent _ _ Nothing = return ()
 
 instance FileListener INo.INotify where
-  initSession = INo.initINotify
+  initSession = INo.initINotify >>= return . Right
 
   killSession = INo.killINotify
 
